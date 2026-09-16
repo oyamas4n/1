@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova — Browser Home</title>
+<style>
+:root{
+  --text:#f5f6fa;
+  --muted:rgba(245,246,250,.62);
+  --border:rgba(255,255,255,.16);
+  --glass:rgba(255,255,255,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{
+  height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#000;
+  touch-action:none;
+}
+
+/* video background */
+.bg-video{
+  position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+  filter:grayscale(1) brightness(.62);
+}
+.bg-overlay{
+  position:fixed;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.15) 40%,rgba(0,0,0,.55));
+}
+
+main{
+  position:relative;z-index:2;max-width:1100px;margin:auto;height:100%;
+  display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:40px;
+  padding:32px 40px;
+}
+
+/* --- bagian kiri: salam & jam --- */
+.hero{text-align:left}
+.greeting{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.clock{font-size:clamp(48px,9vw,84px);line-height:1;font-weight:200;letter-spacing:-3px}
+.date{color:var(--muted);margin:12px 0 30px;text-transform:capitalize;font-size:14px}
+
+.search{
+  max-width:420px;display:flex;align-items:center;gap:10px;padding:5px 6px 5px 16px;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);border-radius:16px;
+  backdrop-filter:blur(14px);transition:.2s;
+}
+.search:focus-within{border-color:rgba(255,255,255,.4)}
+.search svg{width:17px;color:var(--muted);flex:none}
+.search input{width:100%;background:none;border:0;outline:0;color:var(--text);font-size:14px;padding:11px 0}
+.search input::placeholder{color:var(--muted)}
+.search button{border:0;color:var(--text);background:transparent;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;opacity:.8}
+.search button:hover{opacity:1}
+
+/* --- bagian kanan: daftar tautan --- */
+.links{
+  display:flex;flex-direction:column;align-items:flex-end;gap:18px;text-align:right;flex:none;
+}
+.links a{
+  color:var(--muted);font-size:14px;text-decoration:none;letter-spacing:.02em;
+  padding-bottom:3px;border-bottom:1px solid transparent;transition:.2s;
+}
+.links a:hover{color:var(--text);border-color:rgba(255,255,255,.4)}
+
+.footer{position:relative;z-index:2;text-align:center;color:rgba(255,255,255,.35);font-size:11px;padding:0 0 22px}
+
+/* --- loading screen --- */
+.loader{
+  position:fixed;inset:0;z-index:50;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  transition:opacity .6s ease, visibility .6s ease;
+}
+.loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-logo{font-size:14px;letter-spacing:.35em;text-transform:uppercase;color:var(--text);opacity:.85}
+.loader-bars{display:flex;align-items:flex-end;gap:5px;height:28px}
+.loader-bars span{
+  width:4px;background:var(--text);border-radius:2px;
+  animation:loaderWave 1s ease-in-out infinite;
+}
+.loader-bars span:nth-child(1){animation-delay:0s}
+.loader-bars span:nth-child(2){animation-delay:.1s}
+.loader-bars span:nth-child(3){animation-delay:.2s}
+.loader-bars span:nth-child(4){animation-delay:.3s}
+.loader-bars span:nth-child(5){animation-delay:.4s}
+@keyframes loaderWave{
+  0%,100%{height:6px;opacity:.4}
+  50%{height:28px;opacity:1}
+}
+
+/* --- music player --- */
+.player{
+  margin-top:22px;max-width:420px;display:flex;align-items:center;gap:12px;padding:10px 14px;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);border-radius:16px;
+  backdrop-filter:blur(14px);
+}
+.player button{
+  flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);
+  background:rgba(255,255,255,.08);color:var(--text);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:13px;transition:.2s;
+}
+.player button:hover{background:rgba(255,255,255,.18)}
+.player-info{flex:1;min-width:0}
+.track-name{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wave{width:100%;height:30px;display:block}
+.wave rect{fill:var(--text)}
+.player-upload{
+  flex:none;font-size:11px;color:var(--muted);cursor:pointer;border:1px dashed var(--border);
+  padding:6px 10px;border-radius:10px;transition:.2s;
+}
+.player-upload:hover{color:var(--text);border-color:rgba(255,255,255,.4)}
+
+@media(max-width:720px){
+  main{flex-direction:column;justify-content:center;align-items:center;gap:18px;padding:18px 20px;text-align:center}
+  .hero{text-align:center}
+  .clock{font-size:clamp(38px,12vw,60px)}
+  .date{margin:8px 0 16px}
+  .search{margin:0 auto}
+  .player{margin:14px auto 0}
+  .links{flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;text-align:center;gap:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+  <div class="loader-bars">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="loader-logo">Nova</div>
+</div>
+
+<video class="bg-video" autoplay muted loop playsinline>
+  <source src="bg.mp4" type="video/mp4">
+</video>
+<div class="bg-overlay"></div>
+
+<main>
+  <section class="hero">
+    <div class="greeting" id="greeting">Selamat malam</div>
+    <div class="clock" id="clock">21:00</div>
+    <div class="date" id="date"></div>
+
+    <form class="search" id="searchForm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path>
+      </svg>
+      <input id="searchInput" autocomplete="off" placeholder="Cari di Google atau ketik URL..." />
+      <button type="submit">Cari</button>
+    </form>
+
+    <div class="player">
+      <button id="playBtn" type="button" aria-label="Putar/Jeda">▶</button>
+      <div class="player-info">
+        <div class="track-name" id="trackName">Belum ada lagu — unggah untuk memutar</div>
+        <svg class="wave" id="wave" viewBox="0 0 300 30" preserveAspectRatio="none"></svg>
+      </div>
+      <label class="player-upload" for="audioFile">Pilih lagu</label>
+      <input type="file" id="audioFile" accept="audio/*" hidden>
+    </div>
+    <audio id="audioEl" crossorigin="anonymous"></audio>
+  </section>
+
+  <nav class="links">
+    <a href="https://www.google.com">Google</a>
+    <a href="https://www.youtube.com">YouTube</a>
+    <a href="https://github.com">GitHub</a>
+    <a href="http://localhost/">XAMPP</a>
+    <a href="https://www.wikipedia.org">Wikipedia</a>
+  </nav>
+</main>
+
+<div class="footer">Nova</div>
+
+<script>
+const clock=document.getElementById("clock");
+const date=document.getElementById("date");
+const greeting=document.getElementById("greeting");
+
+function updateTime(){
+  const now=new Date();
+  clock.textContent=now.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",hour12:false});
+  date.textContent=now.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const h=now.getHours();
+  greeting.textContent=h<5?"Selamat dini hari":h<11?"Selamat pagi":h<15?"Selamat siang":h<18?"Selamat sore":"Selamat malam";
+}
+updateTime(); setInterval(updateTime,1000);
+
+document.getElementById("searchForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const q=document.getElementById("searchInput").value.trim();
+  if(!q)return;
+  const isUrl=/^(https?:\/\/|www\.)/i.test(q)||(/^[\w-]+(\.[\w-]+)+/.test(q)&&!q.includes(" "));
+  window.location.href=isUrl ? (q.startsWith("http")?q:"https://"+q) :
+    "https://www.google.com/search?q="+encodeURIComponent(q);
+});
+
+/* --- loading screen --- */
+const loader=document.getElementById("loader");
+window.addEventListener("load",()=>{
+  setTimeout(()=>loader.classList.add("hidden"),400);
+});
+/* jaga-jaga kalau event load lama/gagal (mis. video besar) */
+setTimeout(()=>loader.classList.add("hidden"),4000);
+
+/* --- music player + visualizer gelombang --- */
+const audioEl=document.getElementById("audioEl");
+const playBtn=document.getElementById("playBtn");
+const fileInput=document.getElementById("audioFile");
+const trackName=document.getElementById("trackName");
+const waveSvg=document.getElementById("wave");
+
+const BAR_COUNT=40;
+const bars=[];
+for(let i=0;i<BAR_COUNT;i++){
+  const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
+  const w=300/BAR_COUNT*0.6;
+  rect.setAttribute("width",w);
+  rect.setAttribute("x",i*(300/BAR_COUNT)+ (300/BAR_COUNT-w)/2);
+  rect.setAttribute("y",14);
+  rect.setAttribute("height",2);
+  rect.setAttribute("rx",1.5);
+  waveSvg.appendChild(rect);
+  bars.push(rect);
+}
+
+let audioCtx,analyser,source,dataArray,rafId;
+
+function setupAudioGraph(){
+  if(audioCtx) return;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  source=audioCtx.createMediaElementSource(audioEl);
+  analyser=audioCtx.createAnalyser();
+  analyser.fftSize=128;
+  dataArray=new Uint8Array(analyser.frequencyBinCount);
+  source.connect(analyser);
+  analyser.connect(audioCtx.destination);
+}
+
+function drawWave(){
+  rafId=requestAnimationFrame(drawWave);
+  analyser.getByteFrequencyData(dataArray);
+  const step=Math.floor(dataArray.length/BAR_COUNT)||1;
+  for(let i=0;i<BAR_COUNT;i++){
+    const v=dataArray[i*step]/255;
+    const h=Math.max(2,v*28);
+    bars[i].setAttribute("height",h);
+    bars[i].setAttribute("y",(30-h)/2);
+  }
+}
+
+function idleWave(){
+  bars.forEach(b=>{b.setAttribute("height",2);b.setAttribute("y",14);});
+}
+
+fileInput.addEventListener("change",()=>{
+  const file=fileInput.files[0];
+  if(!file) return;
+  const url=URL.createObjectURL(file);
+  audioEl.src=url;
+  trackName.textContent=file.name;
+  setupAudioGraph();
+  audioEl.play();
+});
+
+playBtn.addEventListener("click",()=>{
+  if(!audioEl.src){
+    fileInput.click();
+    return;
+  }
+  if(audioCtx && audioCtx.state==="suspended") audioCtx.resume();
+  if(audioEl.paused){ audioEl.play(); } else { audioEl.pause(); }
+});
+
+audioEl.addEventListener("play",()=>{
+  playBtn.textContent="❚❚";
+  cancelAnimationFrame(rafId);
+  drawWave();
+});
+audioEl.addEventListener("pause",()=>{
+  playBtn.textContent="▶";
+  cancelAnimationFrame(rafId);
+  idleWave();
+});
+audioEl.addEventListener("ended",()=>{
+  playBtn.textContent="▶";
+  cancelAnimationFrame(rafId);
+  idleWave();
+});
+</script>
+</body>
+</html>
